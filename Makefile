@@ -9,7 +9,7 @@ test:
 
 test-integration: .setup-db
 	go test -tags=integration ./...
-	@$(MAKE) .teardown-db
+	@bash -c 'set -e; trap "make .teardown-db" EXIT; go test -tags=integration ./...'
 
 .setup-db:
 	@echo "🚀 Starting PostgreSQL on port 5433..."
