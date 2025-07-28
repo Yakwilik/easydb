@@ -100,3 +100,24 @@ func replaceSQLChars(sql string) string {
 
 	return strings.TrimSpace(rxSpaces.ReplaceAllString(sql, " "))
 }
+
+// prepareNamedQuery подготавливает запрос с именованными параметрами:
+// - sqlx.Named
+// - sqlx.In (если нужно раскрытие слайсов)
+// - sqlx.Rebind под `$1, $2, ...`
+func prepareNamedQuery(query string, arg any) (string, []any, error) {
+	namedQuery, args, err := sqlx.Named(query, arg)
+	if err != nil {
+		return "", nil, err
+	}
+
+	// безопасно даже если нет слайсов
+	inQuery, inArgs, err := sqlx.In(namedQuery, args...)
+	if err != nil {
+		return "", nil, err
+	}
+
+	finalQuery := cleanQuery(inQuery)
+
+	return finalQuery, inArgs, nil
+}

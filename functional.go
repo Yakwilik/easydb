@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jmoiron/sqlx"
 )
 
 // Get выполняет запрос и возвращает один объект T
@@ -37,12 +36,11 @@ func Exec(ctx context.Context, q pgxquerier, sql string, args ...any) (CommandTa
 
 // NamedGet выполняет именованный запрос и возвращает один объект T
 func NamedGet[T any](ctx context.Context, q pgxquerier, query string, arg any) (T, error) {
-	named, args, err := sqlx.Named(query, arg)
+	named, args, err := prepareNamedQuery(query, arg)
 	if err != nil {
 		var zero T
 		return zero, err
 	}
-	named = cleanQuery(named)
 
 	rows, err := q.Query(ctx, named, args...)
 	if err != nil {
@@ -55,11 +53,10 @@ func NamedGet[T any](ctx context.Context, q pgxquerier, query string, arg any) (
 
 // NamedSelect выполняет именованный запрос и возвращает []T
 func NamedSelect[T any](ctx context.Context, q pgxquerier, query string, arg any) ([]T, error) {
-	named, args, err := sqlx.Named(query, arg)
+	named, args, err := prepareNamedQuery(query, arg)
 	if err != nil {
 		return nil, err
 	}
-	named = cleanQuery(named)
 
 	rows, err := q.Query(ctx, named, args...)
 	if err != nil {
@@ -71,11 +68,10 @@ func NamedSelect[T any](ctx context.Context, q pgxquerier, query string, arg any
 
 // NamedExec выполняет именованный запрос без возврата результата
 func NamedExec(ctx context.Context, q pgxquerier, query string, arg any) (CommandTag, error) {
-	named, args, err := sqlx.Named(query, arg)
+	named, args, err := prepareNamedQuery(query, arg)
 	if err != nil {
 		return CommandTag{}, err
 	}
-	named = cleanQuery(named)
 
 	cmdTag, err := q.Exec(ctx, named, args...)
 
