@@ -86,6 +86,28 @@ func TestNamedQueries(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "Charlie", user.Name)
 	})
+
+	t.Run("NamedExec insert many users", func(t *testing.T) {
+		users := []User{
+			{Name: "Dave", Email: "dave@example.com"},
+			{Name: "Eve", Email: "eve@example.com"},
+		}
+
+		_, err := db.NamedExec(context.Background(), `
+			INSERT INTO users (name, email) VALUES (:name, :email)
+		`, users)
+		require.NoError(t, err)
+
+		var inserted []User
+		err = db.NamedSelect(context.Background(), &inserted, `
+			SELECT * FROM users WHERE name IN (:names)
+		`, map[string]any{
+			"names": []string{"Dave", "Eve"},
+		})
+		require.NoError(t, err)
+		require.Len(t, inserted, 2)
+	})
+
 }
 
 func TestWithTx(t *testing.T) {

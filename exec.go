@@ -2,8 +2,6 @@ package easydb
 
 import (
 	"context"
-
-	"github.com/jmoiron/sqlx"
 )
 
 func (db *PgxDB) exec() pgxquerier {
@@ -23,10 +21,11 @@ func (db *PgxDB) Exec(ctx context.Context, query string, args ...any) (CommandTa
 }
 
 func (db *PgxDB) NamedExec(ctx context.Context, query string, arg any) (CommandTag, error) {
-	q, args, err := sqlx.Named(query, arg)
+	q, args, err := prepareNamedQuery(query, arg)
 	if err != nil {
 		return CommandTag{}, err
 	}
+
 	q = cleanQuery(q)
 
 	cmd, err := db.exec().Exec(ctx, q, args...)

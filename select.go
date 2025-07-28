@@ -2,8 +2,6 @@ package easydb
 
 import (
 	"context"
-
-	"github.com/jmoiron/sqlx"
 )
 
 func (db *PgxDB) Select(ctx context.Context, dest any, query string, args ...any) error {
@@ -18,11 +16,10 @@ func (db *PgxDB) Select(ctx context.Context, dest any, query string, args ...any
 }
 
 func (db *PgxDB) NamedSelect(ctx context.Context, dest any, query string, arg any) error {
-	q, args, err := sqlx.Named(query, arg)
+	q, args, err := prepareNamedQuery(query, arg)
 	if err != nil {
 		return err
 	}
-	q = cleanQuery(q)
 
 	rows, err := db.exec().Query(ctx, q, args...)
 	if err != nil {
