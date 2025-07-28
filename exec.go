@@ -3,7 +3,6 @@ package easydb
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -11,21 +10,28 @@ func (db *PgxDB) exec() pgxquerier {
 	if db.tx != nil {
 		return db.tx
 	}
+
 	return db.pool
 }
 
-func (db *PgxDB) Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error) {
+func (db *PgxDB) Exec(ctx context.Context, query string, args ...any) (CommandTag, error) {
 	query = cleanQuery(query)
-	return db.exec().Exec(ctx, query, args...)
+
+	cmd, err := db.exec().Exec(ctx, query, args...)
+
+	return CommandTag{pgxTag: cmd}, err
 }
 
-func (db *PgxDB) NamedExec(ctx context.Context, query string, arg interface{}) (pgconn.CommandTag, error) {
+func (db *PgxDB) NamedExec(ctx context.Context, query string, arg any) (CommandTag, error) {
 	q, args, err := sqlx.Named(query, arg)
 	if err != nil {
-		return pgconn.CommandTag{}, err
+		return CommandTag{}, err
 	}
-	q = cleanQuery(query)
-	return db.exec().Exec(ctx, q, args...)
+	q = cleanQuery(q)
+
+	cmd, err := db.exec().Exec(ctx, q, args...)
+
+	return CommandTag{pgxTag: cmd}, err
 }
 
 func (db *PgxDB) Close() {

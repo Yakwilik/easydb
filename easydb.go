@@ -13,9 +13,16 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+var _ DB = &PgxDB{}
+var _ Tx = &PgxDB{}
+
 type PgxDB struct {
 	pool *pgxpool.Pool
 	tx   pgx.Tx // может быть nil
+}
+
+func (db *PgxDB) Ping(ctx context.Context) error {
+	return db.pool.Ping(ctx)
 }
 
 func (db *PgxDB) GetQuerier() pgxquerier {

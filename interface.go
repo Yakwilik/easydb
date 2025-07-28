@@ -9,13 +9,14 @@ import (
 
 //go:generate go tool mockery --name Querier --filename querier_mock.go --inpackage --with-expecter
 type Querier interface {
-	Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error)
-	Get(ctx context.Context, dest interface{}, query string, args ...any) error
-	Select(ctx context.Context, dest interface{}, query string, args ...any) error
+	Ping(ctx context.Context) error
+	Exec(ctx context.Context, query string, args ...any) (CommandTag, error)
+	Get(ctx context.Context, dest any, query string, args ...any) error
+	Select(ctx context.Context, dest any, query string, args ...any) error
 
-	NamedExec(ctx context.Context, query string, arg interface{}) (pgconn.CommandTag, error)
-	NamedGet(ctx context.Context, dest interface{}, query string, arg interface{}) error
-	NamedSelect(ctx context.Context, dest interface{}, query string, arg interface{}) error
+	NamedExec(ctx context.Context, query string, arg any) (CommandTag, error)
+	NamedGet(ctx context.Context, dest any, query string, arg any) error
+	NamedSelect(ctx context.Context, dest any, query string, arg any) error
 
 	GetQuerier() pgxquerier
 }
@@ -30,7 +31,7 @@ type DB interface {
 	Close()
 }
 
-//go:generate go tool mockery --name Tx --filename querier_mock.go --inpackage --with-expecter
+//go:generate go tool mockery --name Tx --filename tx_mock.go --inpackage --with-expecter
 type Tx interface {
 	Querier
 	Commit(ctx context.Context) error

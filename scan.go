@@ -5,10 +5,10 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func scanRowToStruct(dest interface{}, rows pgx.Rows) error {
+func scanRowToStruct(dest any, rows pgx.Rows) error {
 	return pgxscan.ScanOne(dest, rows)
 }
 
-func scanRowsToSlice(dest interface{}, rows pgx.Rows) error {
+func scanRowsToSlice(dest any, rows pgx.Rows) error {
 	return pgxscan.ScanAll(dest, rows)
 }

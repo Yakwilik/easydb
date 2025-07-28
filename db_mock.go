@@ -442,6 +442,52 @@ func (_c *MockDB_NamedSelect_Call) RunAndReturn(run func(context.Context, interf
 	return _c
 }
 
+// Ping provides a mock function with given fields: ctx
+func (_m *MockDB) Ping(ctx context.Context) error {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Ping")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockDB_Ping_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Ping'
+type MockDB_Ping_Call struct {
+	*mock.Call
+}
+
+// Ping is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockDB_Expecter) Ping(ctx interface{}) *MockDB_Ping_Call {
+	return &MockDB_Ping_Call{Call: _e.mock.On("Ping", ctx)}
+}
+
+func (_c *MockDB_Ping_Call) Run(run func(ctx context.Context)) *MockDB_Ping_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockDB_Ping_Call) Return(_a0 error) *MockDB_Ping_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockDB_Ping_Call) RunAndReturn(run func(context.Context) error) *MockDB_Ping_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Select provides a mock function with given fields: ctx, dest, query, args
 func (_m *MockDB) Select(ctx context.Context, dest interface{}, query string, args ...interface{}) error {
 	var _ca []interface{}

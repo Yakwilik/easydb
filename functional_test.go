@@ -77,7 +77,7 @@ func TestNamedGet(t *testing.T) {
 		WithArgs(1).
 		WillReturnRows(rows)
 
-	result, err := NamedGet[user](context.Background(), mock, "SELECT id, name FROM users WHERE id = :id", map[string]interface{}{"id": 1})
+	result, err := NamedGet[user](context.Background(), mock, "SELECT id, name FROM users WHERE id = :id", map[string]any{"id": 1})
 	require.NoError(t, err)
 	require.Equal(t, "Alice", result.Name)
 }
@@ -94,7 +94,7 @@ func TestNamedSelect(t *testing.T) {
 		WithArgs("Eve").
 		WillReturnRows(rows)
 
-	result, err := NamedSelect[user](context.Background(), mock, "SELECT id, name FROM users WHERE name != :name", map[string]interface{}{"name": "Eve"})
+	result, err := NamedSelect[user](context.Background(), mock, "SELECT id, name FROM users WHERE name != :name", map[string]any{"name": "Eve"})
 	require.NoError(t, err)
 	require.Len(t, result, 2)
 	require.Equal(t, "Bob", result[1].Name)
@@ -108,7 +108,7 @@ func TestNamedExec(t *testing.T) {
 		WithArgs(42).
 		WillReturnResult(pgxmock.NewResult("DELETE", 1))
 
-	tag, err := NamedExec(context.Background(), mock, "DELETE FROM users WHERE id = :id", map[string]interface{}{"id": 42})
+	tag, err := NamedExec(context.Background(), mock, "DELETE FROM users WHERE id = :id", map[string]any{"id": 42})
 	require.NoError(t, err)
 	require.True(t, tag.Delete())
 }

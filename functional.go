@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -30,12 +29,14 @@ func Select[T any](ctx context.Context, q pgxquerier, sql string, args ...any) (
 }
 
 // Exec просто выполняет запрос
-func Exec(ctx context.Context, q pgxquerier, sql string, args ...any) (pgconn.CommandTag, error) {
-	return q.Exec(ctx, sql, args...)
+func Exec(ctx context.Context, q pgxquerier, sql string, args ...any) (CommandTag, error) {
+	cmdTag, err := q.Exec(ctx, cleanQuery(sql), args...)
+
+	return CommandTag{pgxTag: cmdTag}, err
 }
 
 // NamedGet выполняет именованный запрос и возвращает один объект T
-func NamedGet[T any](ctx context.Context, q pgxquerier, query string, arg interface{}) (T, error) {
+func NamedGet[T any](ctx context.Context, q pgxquerier, query string, arg any) (T, error) {
 	named, args, err := sqlx.Named(query, arg)
 	if err != nil {
 		var zero T
@@ -53,7 +54,7 @@ func NamedGet[T any](ctx context.Context, q pgxquerier, query string, arg interf
 }
 
 // NamedSelect выполняет именованный запрос и возвращает []T
-func NamedSelect[T any](ctx context.Context, q pgxquerier, query string, arg interface{}) ([]T, error) {
+func NamedSelect[T any](ctx context.Context, q pgxquerier, query string, arg any) ([]T, error) {
 	named, args, err := sqlx.Named(query, arg)
 	if err != nil {
 		return nil, err
@@ -69,12 +70,14 @@ func NamedSelect[T any](ctx context.Context, q pgxquerier, query string, arg int
 }
 
 // NamedExec выполняет именованный запрос без возврата результата
-func NamedExec(ctx context.Context, q pgxquerier, query string, arg interface{}) (pgconn.CommandTag, error) {
+func NamedExec(ctx context.Context, q pgxquerier, query string, arg any) (CommandTag, error) {
 	named, args, err := sqlx.Named(query, arg)
 	if err != nil {
-		return pgconn.CommandTag{}, err
+		return CommandTag{}, err
 	}
 	named = cleanQuery(named)
 
-	return q.Exec(ctx, named, args...)
+	cmdTag, err := q.Exec(ctx, named, args...)
+
+	return CommandTag{pgxTag: cmdTag}, err
 }

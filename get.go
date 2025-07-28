@@ -6,9 +6,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func (db *PgxDB) Get(ctx context.Context, dest interface{}, query string, args ...any) error {
+func (db *PgxDB) Get(ctx context.Context, dest any, query string, args ...any) error {
 	query = cleanQuery(query)
-
 	rows, err := db.exec().Query(ctx, query, args...)
 	if err != nil {
 		return err
@@ -17,7 +16,7 @@ func (db *PgxDB) Get(ctx context.Context, dest interface{}, query string, args .
 	return scanRowToStruct(dest, rows)
 }
 
-func (db *PgxDB) NamedGet(ctx context.Context, dest interface{}, query string, arg interface{}) error {
+func (db *PgxDB) NamedGet(ctx context.Context, dest any, query string, arg any) error {
 	q, args, err := sqlx.Named(query, arg)
 	if err != nil {
 		return err
