@@ -5,7 +5,6 @@ package easydb
 import (
 	context "context"
 
-	pgconn "github.com/jackc/pgx/v5/pgconn"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -69,7 +68,7 @@ func (_c *MockTx_Commit_Call) RunAndReturn(run func(context.Context) error) *Moc
 }
 
 // Exec provides a mock function with given fields: ctx, query, args
-func (_m *MockTx) Exec(ctx context.Context, query string, args ...interface{}) (pgconn.CommandTag, error) {
+func (_m *MockTx) Exec(ctx context.Context, query string, args ...interface{}) (CommandTag, error) {
 	var _ca []interface{}
 	_ca = append(_ca, ctx, query)
 	_ca = append(_ca, args...)
@@ -79,15 +78,15 @@ func (_m *MockTx) Exec(ctx context.Context, query string, args ...interface{}) (
 		panic("no return value specified for Exec")
 	}
 
-	var r0 pgconn.CommandTag
+	var r0 CommandTag
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) (pgconn.CommandTag, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) (CommandTag, error)); ok {
 		return rf(ctx, query, args...)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) pgconn.CommandTag); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) CommandTag); ok {
 		r0 = rf(ctx, query, args...)
 	} else {
-		r0 = ret.Get(0).(pgconn.CommandTag)
+		r0 = ret.Get(0).(CommandTag)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, ...interface{}) error); ok {
@@ -126,12 +125,12 @@ func (_c *MockTx_Exec_Call) Run(run func(ctx context.Context, query string, args
 	return _c
 }
 
-func (_c *MockTx_Exec_Call) Return(_a0 pgconn.CommandTag, _a1 error) *MockTx_Exec_Call {
+func (_c *MockTx_Exec_Call) Return(_a0 CommandTag, _a1 error) *MockTx_Exec_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockTx_Exec_Call) RunAndReturn(run func(context.Context, string, ...interface{}) (pgconn.CommandTag, error)) *MockTx_Exec_Call {
+func (_c *MockTx_Exec_Call) RunAndReturn(run func(context.Context, string, ...interface{}) (CommandTag, error)) *MockTx_Exec_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -243,22 +242,22 @@ func (_c *MockTx_GetQuerier_Call) RunAndReturn(run func() pgxquerier) *MockTx_Ge
 }
 
 // NamedExec provides a mock function with given fields: ctx, query, arg
-func (_m *MockTx) NamedExec(ctx context.Context, query string, arg interface{}) (pgconn.CommandTag, error) {
+func (_m *MockTx) NamedExec(ctx context.Context, query string, arg interface{}) (CommandTag, error) {
 	ret := _m.Called(ctx, query, arg)
 
 	if len(ret) == 0 {
 		panic("no return value specified for NamedExec")
 	}
 
-	var r0 pgconn.CommandTag
+	var r0 CommandTag
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) (pgconn.CommandTag, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) (CommandTag, error)); ok {
 		return rf(ctx, query, arg)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) pgconn.CommandTag); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string, interface{}) CommandTag); ok {
 		r0 = rf(ctx, query, arg)
 	} else {
-		r0 = ret.Get(0).(pgconn.CommandTag)
+		r0 = ret.Get(0).(CommandTag)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string, interface{}) error); ok {
@@ -290,12 +289,12 @@ func (_c *MockTx_NamedExec_Call) Run(run func(ctx context.Context, query string,
 	return _c
 }
 
-func (_c *MockTx_NamedExec_Call) Return(_a0 pgconn.CommandTag, _a1 error) *MockTx_NamedExec_Call {
+func (_c *MockTx_NamedExec_Call) Return(_a0 CommandTag, _a1 error) *MockTx_NamedExec_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockTx_NamedExec_Call) RunAndReturn(run func(context.Context, string, interface{}) (pgconn.CommandTag, error)) *MockTx_NamedExec_Call {
+func (_c *MockTx_NamedExec_Call) RunAndReturn(run func(context.Context, string, interface{}) (CommandTag, error)) *MockTx_NamedExec_Call {
 	_c.Call.Return(run)
 	return _c
 }

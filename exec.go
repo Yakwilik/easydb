@@ -26,8 +26,6 @@ func (db *PgxDB) NamedExec(ctx context.Context, query string, arg any) (CommandT
 		return CommandTag{}, err
 	}
 
-	q = cleanQuery(q)
-
 	cmd, err := db.exec().Exec(ctx, q, args...)
 
 	return CommandTag{pgxTag: cmd}, err

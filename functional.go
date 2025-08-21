@@ -2,6 +2,7 @@ package easydb
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -14,7 +15,7 @@ func Get[T any](ctx context.Context, q pgxquerier, sql string, args ...any) (T, 
 		return zero, err
 	}
 
-	return pgx.CollectOneRow(rows, pgx.RowToStructByName[T])
+	return pgx.CollectOneRow(rows, rowToFunc[T]())
 }
 
 // Select выполняет запрос и возвращает []T
@@ -24,7 +25,7 @@ func Select[T any](ctx context.Context, q pgxquerier, sql string, args ...any) (
 		return nil, err
 	}
 
-	return pgx.CollectRows(rows, pgx.RowToStructByName[T])
+	return pgx.CollectRows(rows, rowToFunc[T]())
 }
 
 // Exec просто выполняет запрос
@@ -48,7 +49,7 @@ func NamedGet[T any](ctx context.Context, q pgxquerier, query string, arg any) (
 		return zero, err
 	}
 
-	return pgx.CollectOneRow(rows, pgx.RowToStructByName[T])
+	return pgx.CollectOneRow(rows, rowToFunc[T]())
 }
 
 // NamedSelect выполняет именованный запрос и возвращает []T
@@ -63,7 +64,7 @@ func NamedSelect[T any](ctx context.Context, q pgxquerier, query string, arg any
 		return nil, err
 	}
 
-	return pgx.CollectRows(rows, pgx.RowToStructByName[T])
+	return pgx.CollectRows(rows, rowToFunc[T]())
 }
 
 // NamedExec выполняет именованный запрос без возврата результата
@@ -76,4 +77,12 @@ func NamedExec(ctx context.Context, q pgxquerier, query string, arg any) (Comman
 	cmdTag, err := q.Exec(ctx, named, args...)
 
 	return CommandTag{pgxTag: cmdTag}, err
+}
+
+func rowToFunc[T any]() pgx.RowToFunc[T] {
+	var t T
+	if reflect.TypeOf(t).Kind() == reflect.Struct {
+		return pgx.RowToStructByName[T]
+	}
+	return pgx.RowTo[T]
 }
