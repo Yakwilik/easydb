@@ -389,6 +389,128 @@ _ = cmd.Delete()
 
 ---
 
+## Короткие сниппеты (для индексаторов)
+
+Ниже — изолированные, короткие примеры. Каждый сниппет самодостаточен.
+
+### Get одной записи
+```go
+var u User
+err := db.Get(ctx, &u, "SELECT id, name FROM users WHERE id=$1", 1)
+```
+
+### Select списка
+```go
+var users []User
+err := db.Select(ctx, &users, "SELECT id, name FROM users ORDER BY id")
+```
+
+### Exec и проверка CommandTag
+```go
+cmd, err := db.Exec(ctx, "UPDATE users SET name=$1 WHERE id=$2", "Alice", 1)
+_ = cmd.Update()
+_ = cmd.RowsAffected()
+```
+
+### NamedExec с map
+```go
+_, err := db.NamedExec(ctx, "INSERT INTO users(name, email) VALUES(:name, :email)", map[string]any{"name": "Bob", "email": "b@example.com"})
+```
+
+### NamedGet с map
+```go
+var u User
+err := db.NamedGet(ctx, &u, "SELECT id, name FROM users WHERE name=:name", map[string]any{"name": "Alice"})
+```
+
+### NamedSelect со слайсом (IN)
+```go
+var users []User
+err := db.NamedSelect(ctx, &users, "SELECT id, name FROM users WHERE id IN (:ids)", map[string]any{"ids": []int64{1,2,3}})
+```
+
+### Generics: Get[T]
+```go
+u, err := easydb.Get[User](ctx, db.GetQuerier(), "SELECT id, name FROM users WHERE id=$1", 1)
+```
+
+### Generics: Select[T]
+```go
+rows, err := easydb.Select[User](ctx, db.GetQuerier(), "SELECT id, name FROM users")
+```
+
+### Generics: Exec
+```go
+cmd, err := easydb.Exec(ctx, db.GetQuerier(), "DELETE FROM users WHERE id=$1", 42)
+_ = cmd.Delete()
+```
+
+### Generics: NamedGet[T]
+```go
+u, err := easydb.NamedGet[User](ctx, db.GetQuerier(), "SELECT id, name FROM users WHERE id = :id", map[string]any{"id": 1})
+```
+
+### Generics: NamedSelect[T]
+```go
+list, err := easydb.NamedSelect[User](ctx, db.GetQuerier(), "SELECT id, name FROM users WHERE name != :name", map[string]any{"name": "Eve"})
+```
+
+### Generics: NamedExec
+```go
+cmd, err := easydb.NamedExec(ctx, db.GetQuerier(), "UPDATE users SET name=:name WHERE id=:id", map[string]any{"id": 1, "name": "Alice"})
+_ = cmd.Update()
+```
+
+### WithTx обёртка
+```go
+err := db.WithTx(ctx, func(tx easydb.Querier) error {
+	_, err := tx.Exec(ctx, "INSERT INTO audit(event) VALUES($1)", "x")
+	return err
+})
+```
+
+### Ручная транзакция
+```go
+trx, err := db.Begin(ctx)
+if err != nil { /* ... */ }
+
+defer func() {
+	if err != nil { _ = trx.Rollback(ctx); return }
+	_ = trx.Commit(ctx)
+}()
+
+_, err = trx.Exec(ctx, "INSERT INTO audit(event) VALUES($1)", "x")
+```
+
+### Обработка pgerror.AsPGError (unique_violation)
+```go
+import pgxerr "github.com/khasbulatabdullin/easydb/pgerror"
+
+_, err := db.Exec(ctx, "INSERT INTO users(email) VALUES($1)", "dup@example.com")
+if pg := pgxerr.AsPGError(err); pg != nil && pg.Code == "23505" {
+	// unique_violation
+}
+```
+
+### Инициализация: NewWithDSN
+```go
+db, err := easydb.NewWithDSN(ctx, "postgres://user:pass@localhost:5432/app?sslmode=disable")
+```
+
+### Инициализация: NewPgxDB + PGConfig
+```go
+cfg := easydb.NewPGConfig().WithHost("localhost").WithPort("5432").WithUser("user").WithPassword("pass").WithDatabase("app").WithSSLMode("disable")
+db, err := easydb.NewPgxDB(ctx, cfg)
+```
+
+### Инициализация: New(pgxpool.Pool)
+```go
+pool, _ := pgxpool.New(ctx, dsn)
+db := easydb.New(pool)
+```
+
+---
+
 ## Лицензия
 
 См. файл `LICENSE`.
